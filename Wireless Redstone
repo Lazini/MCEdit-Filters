@@ -1,0 +1,73 @@
+# Filter by Lazini
+# You can modify, reuse or distribute this filter. 
+# If you do so, make sure to give credit to Lazini
+# Some functions/code is taken from SethBling's filters.
+
+from pymclevel import TAG_Int, TAG_String, TAG_Compound
+
+displayName = "Wireless Redstone"
+
+inputs = (
+		("Source", "blocktype"),
+		("Destination", "blocktype"),
+)
+
+def CommandBlock((x, y, z), text):
+	control = TAG_Compound()
+	control["Command"] = TAG_String(text)
+	control["id"] = TAG_String(u'Control')
+	control["CustomName"] = TAG_String(u'@')
+	control["SuccessCount"] = TAG_Int(0)
+	control["x"] = TAG_Int(x)
+	control["y"] = TAG_Int(y)
+	control["z"] = TAG_Int(z)
+	
+	return control
+	
+	
+def AddCommandBlocks(level, (x, y, z), (destx, desty, destz)):
+	underBlock = CommandBlock((x, y, z), u'/setblock ' + str(destx) + ' ' + str(desty) + ' ' + str(destz) + ' redstone_block 0  replace')
+	underTorch = CommandBlock((x+1, y, z), u'/setblock ' + str(destx) + ' ' + str(desty) + ' ' + str(destz) + ' air 0 replace')
+	
+	chunk = level.getChunk(x/16, z/16)
+	chunk.TileEntities.append(underBlock)
+	chunk.TileEntities.append(underTorch)
+	chunk.dirty = True
+	
+	level.setBlockAt(x, y, z, 137) #Placer
+	level.setBlockAt(x+1, y, z, 137) #Remover
+	level.setBlockAt(x, y+1, z, 1) #Stone Block
+	level.setBlockAt(x+1, y+1, z, 76) #Redstone Torch
+	level.setBlockDataAt(x+1, y+1, z, 1) #Redstone Torch Data
+	level.setBlockAt(x-1, y+1, z, 69) #	Lever
+	level.setBlockDataAt(x-1, y+1, z, 2) #	Lever Data
+	
+def perform(level, box, options):
+	
+	sourceID = options["Source"].ID
+	sourceData = options["Source"].blockData
+	destinationID = options["Destination"].ID
+	destinationData = options["Destination"].blockData
+	
+	try:
+		if sourceID != destinationID:
+			for x in xrange(box.minx, box.maxx):
+			    for y in xrange(box.miny, box.maxy):
+			        for z in xrange(box.minz, box.maxz):
+						
+						if level.blockAt(x,y,z) == sourceID:
+							if level.blockDataAt(x,y,z) == sourceData:
+								source = (x, y, z)
+						
+						if level.blockAt(x,y,z) == destinationID:
+							if level.blockDataAt(x,y,z) == destinationData:
+								destx = x
+								desty = y
+								destz = z
+								dest = (destx, desty, destz)
+								level.setBlockAt(x,y,z, 0) #Remove destination block
+								break;
+				
+			AddCommandBlocks(level, source, (destx, desty, destz))
+	except:
+		raise Exception("Didn't find a pair of blocks.")
