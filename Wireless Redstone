@@ -39,8 +39,8 @@ def AddCommandBlocks(level, (x, y, z), (destx, desty, destz)):
 	level.setBlockAt(x, y+1, z, 1) #Stone Block
 	level.setBlockAt(x+1, y+1, z, 76) #Redstone Torch
 	level.setBlockDataAt(x+1, y+1, z, 1) #Redstone Torch Data
-	level.setBlockAt(x-1, y+1, z, 69) #	Lever
-	level.setBlockDataAt(x-1, y+1, z, 2) #	Lever Data
+	level.setBlockAt(x-1, y+1, z, 69) #Lever
+	level.setBlockDataAt(x-1, y+1, z, 2) #Lever Data
 	
 def perform(level, box, options):
 	
