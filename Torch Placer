@@ -1,0 +1,22 @@
+# Filter by Lazini
+# You can modify, reuse or distribute this filter. 
+# If you do so, make sure to give credit to Lazini
+
+displayName = "Torch placer"
+
+inputs = (("Under light level", (8, 1, 15)),)
+
+def perform(level, box, options):
+	light = options["Under light level"]
+	print ""
+	print "Give it some time, especially if you have made a big selection box."
+	
+	for x in xrange(box.minx, box.maxx):
+	    for y in xrange(box.miny, box.maxy):
+	        for z in xrange(box.minz, box.maxz):
+				if level.blockLightAt(x, y, z) < light:
+					if level.blockAt(x, y, z) == 0:
+						if level.blockAt(x, y-1, z) != 0:
+							level.setBlockAt(x, y, z, 50)
+							level.generateLights()
+							
